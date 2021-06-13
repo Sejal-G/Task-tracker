@@ -1,8 +1,11 @@
 import Header from './components/Header'
 import Tasks from './components/Tasks'
 import AddTask from './components/AddTask'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
+
+//JSON SERVER
+// helps create mock rest API with our own data
 
 //class component
 import React from 'react';
@@ -15,27 +18,23 @@ function App() {
   //state is immutable
   //function to update task -> setTasks because tasks is immutable!! so we can't do tasks.push()
   // right now default is used
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      text: 'Doctors Appointment',
-      day: 'Feb 5th at 2:30pm',
-      reminder: true,
-    },
-    {
-      id: 2,
-      text: 'Lunch Date',
-      day: 'Feb 5th at 3:30pm',
-      reminder: true,
-    
-    },
-    {
-      id: 3,
-      text: 'Case Study',
-      day: 'Feb 5th at 4:30pm',
-      reminder: true,
+  const [tasks, setTasks] = useState([])
+  useEffect(() => {
+    const getTasks = async() => {
+      const tsksFromServer = await fetchtasks()
+      setTasks(tsksFromServer)
     }
-])
+    getTasks()
+  },[])
+
+  const fetchtasks = async () => {
+    const res = await fetch('http://localhost:5000/tasks')
+    const data=await res.json()
+
+    return data
+    // console.log(data)
+
+  }
   //add task
   const addTask = (task) => {
     const id = Math.floor(Math.random() * 10000) + 1
@@ -50,7 +49,11 @@ function App() {
   }
 
   //Toggle reminder
-  const toggleReminder = (id) => {
+  const toggleReminder = async (id) => {
+    await fetch(`http://localhost/5000/tasks/${id}`,{
+      method: 'DELETE',
+    })
+
     setTasks(tasks.map((task) => task.id === id ? { ...task, reminder: !task.reminder } : task))
   }
   return (
